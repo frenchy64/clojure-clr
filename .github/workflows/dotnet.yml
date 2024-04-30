@@ -30,4 +30,4 @@ jobs:
     - name: Restore dependencies
       run: cd Clojure && dotnet restore build.proj
     - name: Test
-      run: cd Clojure && dotnet msbuild build.proj -t:Test --project:TestTargetFramework=net7.0
+      run: cd Clojure && dotnet msbuild build.proj -t:Test -p:TestTargetFramework=net7.0
