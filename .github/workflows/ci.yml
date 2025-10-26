@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+    
+env:
+  ACTIONS_CACHE_VERSION: 0 # bump to invalidate cache
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        #os: [ubuntu-latest, windows-latest]
+        os: [windows-latest]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            9.0.x
+            8.0.x
+            6.0.x
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ env.ACTIONS_CACHE_VERSION }}-${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
+          restore-keys: |
+            ${{ env.ACTIONS_CACHE_VERSION }}-${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore Clojure/Clojure.sln
+
+      - name: Run all tests via solution
+        run: dotnet test Clojure/Clojure.sln --no-restore --verbosity normal
